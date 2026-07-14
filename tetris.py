@@ -1,5 +1,7 @@
 #집에서 수정수정
 #집에서 수정수정2
+#집에서 수정2
+
 import pygame
 import random
 
