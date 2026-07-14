@@ -1,3 +1,5 @@
+#집에서 수정수정
+
 import pygame
 import random
 
