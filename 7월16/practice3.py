@@ -32,6 +32,9 @@ import polars as pl
 # --------------------------------------------------
 
 FILE_PATH = Path("sales_100k.csv")
+CLEAN_DATA_PATH = Path("clean_sales.csv")
+SUMMARY_PATH = Path("region_category_summary.csv")
+
 REQUIRED_COLUMNS = {"region", "category", "amount"}
 BENCHMARK_NUMBER = 3
 
@@ -171,6 +174,43 @@ def aggregate_with_pandas(df: pd.DataFrame) -> pd.DataFrame:
     )
 
     return summary
+
+# --------------------------------------------------
+# 3-1. 실습4 연계용 산출물 저장
+# --------------------------------------------------
+
+def save_practice3_outputs(
+    df_clean: pd.DataFrame,
+    pandas_summary: pd.DataFrame,
+) -> None:
+    """
+    실습4에서 사용할 정제 데이터와 그룹별 집계 결과를 CSV로 저장한다.
+
+    Args:
+        df_clean: amount IQR 이상치가 제거된 원본 형태의 DataFrame
+        pandas_summary: region·category별 집계 결과
+    """
+    try:
+        df_clean.to_csv(
+            CLEAN_DATA_PATH,
+            index=False,
+            encoding="utf-8-sig",
+        )
+
+        pandas_summary.to_csv(
+            SUMMARY_PATH,
+            index=False,
+            encoding="utf-8-sig",
+        )
+
+    except OSError as error:
+        raise RuntimeError(
+            f"실습3 산출물 저장에 실패했습니다: {error}"
+        ) from error
+
+    print("\n[실습4 연계 파일 저장]")
+    print(f"정제 데이터: {CLEAN_DATA_PATH.resolve()}")
+    print(f"그룹 집계 결과: {SUMMARY_PATH.resolve()}")
 
 # --------------------------------------------------
 # 4. Polars Lazy API 집계
@@ -464,6 +504,12 @@ def main() -> None:
         duckdb_summary,
     )
 
+    # 검증이 끝난 데이터를 실습4 연계용 CSV로 저장
+    save_practice3_outputs(
+        df_clean,
+        pandas_summary,
+    )
+
     benchmark_result = benchmark_tools(
         FILE_PATH,
         lower_bound,
@@ -493,7 +539,7 @@ if __name__ == "__main__":
         RuntimeError,
     ) as error:
         print(f"\n[프로그램 오류] {error}")
-
+ 
     except Exception as error:
         print(
             f"\n[예상하지 못한 오류] "
